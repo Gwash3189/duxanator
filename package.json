@@ -4,7 +4,7 @@
   "description": "simple state store for react",
   "main": "dist/main.js",
   "scripts": {
-    "prepublish": "npm run test && npm run build; git commit -a -m \"prepublish build\"",
+    "prepublish": "npm run test && npm run build",
     "build": "babel ./src --out-dir ./dist",
     "build:watch": "babel ./src --out-dir ./dist --watch",
     "test": "mocha --compilers js:babel-register",
