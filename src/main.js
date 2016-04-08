@@ -39,7 +39,7 @@ export const updateState = (f, meta = {}) => {
   newState = reduce(middlewares, (newState, middleware) => {
     return {
       ...newState,
-      ...apply(middleware, newState, meta)
+      ...apply(middleware, newState, meta) || {}
     }
   }, newState);
 
