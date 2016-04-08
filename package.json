@@ -1,6 +1,6 @@
 {
   "name": "duxanator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "simple state store for react",
   "main": "dist/main.js",
   "scripts": {
