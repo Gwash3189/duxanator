@@ -1,21 +1,13 @@
 import cloneDeep from 'lodash/cloneDeep';
 import forEach from 'lodash/forEach';
 import reduce from 'lodash/reduce';
-import uniqueId from 'lodash/uniqueId';
 import React, { Component, PropTypes, cloneElement } from 'react';
+
+import { isA, apply, setAsId, removeById } from './helpers.js';
 
 let state = {};
 let listeners = {};
 let middlewares = {};
-
-const isA = (thing, type) => typeof thing === type;
-const apply = (f, ...values) => isA(f, 'function') ? f(...values) : f;
-const setAsId = (obj) => (f) => {
-  const id = uniqueId('duxanator');
-  obj[id] = f;
-  return id;
-}
-const removeById = (obj) => (id) => delete obj[id];
 
 export const getState = (f) => isA(f, 'function') ? f(state) : state;
 
