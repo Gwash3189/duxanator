@@ -3,13 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.State = exports.updateState = exports.underwear = exports.silence = exports.listen = exports.middleware = exports.seedState = exports.getState = undefined;
+exports.State = exports.updateState = exports.underwear = exports.middleware = exports.silence = exports.listen = exports.seedState = exports.getState = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _cloneDeep = require('lodash/cloneDeep');
 
@@ -23,13 +21,13 @@ var _reduce = require('lodash/reduce');
 
 var _reduce2 = _interopRequireDefault(_reduce);
 
-var _uniqueId = require('lodash/uniqueId');
-
-var _uniqueId2 = _interopRequireDefault(_uniqueId);
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _stronganator = require('stronganator');
+
+var _helpers = require('./helpers.js');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43,55 +41,35 @@ var state = {};
 var listeners = {};
 var middlewares = {};
 
-var isA = function isA(thing, type) {
-  return (typeof thing === 'undefined' ? 'undefined' : _typeof(thing)) === type;
-};
-var apply = function apply(f) {
-  for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    values[_key - 1] = arguments[_key];
-  }
+var getState = exports.getState = (0, _stronganator.match)([[_stronganator.T.Function, function (f) {
+  return f(state);
+}], [_stronganator.T.Nil, function () {
+  return state;
+}]]);
 
-  return isA(f, 'function') ? f.apply(undefined, values) : f;
-};
-var setAsId = function setAsId(obj) {
-  return function (f) {
-    var id = (0, _uniqueId2.default)('duxanator');
-    obj[id] = f;
-    return id;
-  };
-};
-var removeById = function removeById(obj) {
-  return function (id) {
-    return delete obj[id];
-  };
-};
+var seedState = exports.seedState = (0, _stronganator.func)(_stronganator.T.Union(_stronganator.T.Function, _stronganator.T.Hash)).of(function (f) {
+  state = (0, _cloneDeep2.default)((0, _helpers.apply)(f, state));
+});
 
-var getState = exports.getState = function getState(f) {
-  return isA(f, 'function') ? f(state) : state;
-};
+var listen = exports.listen = (0, _helpers.setAsId)(listeners);
+var silence = exports.silence = (0, _helpers.removeById)(listeners);
 
-var seedState = exports.seedState = function seedState(f) {
-  state = (0, _cloneDeep2.default)(apply(f, state));
-};
-
-var middleware = exports.middleware = setAsId(middlewares);
-var listen = exports.listen = setAsId(listeners);
-var silence = exports.silence = removeById(listeners);
-var underwear = exports.underwear = removeById(middleware);
+var middleware = exports.middleware = (0, _helpers.setAsId)(middlewares);
+var underwear = exports.underwear = (0, _helpers.removeById)(middleware);
 
 var updateState = exports.updateState = function updateState(f) {
   var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-  var newState = apply(f, state, meta);
+  var newState = (0, _helpers.apply)(f, state, meta);
 
   newState = _extends({}, state, newState);
 
   newState = (0, _reduce2.default)(middlewares, function (newState, middleware) {
-    return _extends({}, newState, apply(middleware, newState, meta) || {});
+    return _extends({}, newState, (0, _helpers.apply)(middleware, newState, meta) || {});
   }, newState);
 
   (0, _forEach2.default)(listeners, function (listener) {
-    return apply(listener, newState, meta);
+    return (0, _helpers.apply)(listener, newState, meta);
   });
 
   state = (0, _cloneDeep2.default)(newState);

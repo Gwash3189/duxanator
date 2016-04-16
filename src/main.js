@@ -2,43 +2,53 @@ import cloneDeep from 'lodash/cloneDeep';
 import forEach from 'lodash/forEach';
 import reduce from 'lodash/reduce';
 import React, { Component, PropTypes, cloneElement } from 'react';
+import { T, func, match } from 'stronganator';
 
-import { isA, apply, setAsId, removeById } from './helpers.js';
+import { apply, setAsId, removeById } from './helpers.js';
 
 let state = {};
 let listeners = {};
 let middlewares = {};
 
-export const getState = (f) => isA(f, 'function') ? f(state) : state;
+export const getState = match(
+  [T.Function, (f) => f(state)],
+  [T.Default, () => state]
+);
 
-export const seedState = (f) => {
+export const seedState = func(T.Union(T.Function, T.Hash))
+.of((f) => {
   state = cloneDeep(apply(f, state));
-};
+});
 
-export const middleware = setAsId(middlewares);
 export const listen = setAsId(listeners);
 export const silence = removeById(listeners);
+
+export const middleware = setAsId(middlewares);
 export const underwear = removeById(middleware);
 
-export const updateState = (f, meta = {}) => {
-  let newState = apply(f, state, meta);
+export const updateState = func([T.Function, T.Optional(T.Hash)])
+  .of((f, meta = {}) => {
+    let newState = apply(f, state, meta);
 
-  newState = {
-    ...state,
-    ...newState
-  };
+    newState = {
+      ...state,
+      ...newState
+    };
 
-  newState = reduce(middlewares, (newState, middleware) => {
-    return {
-      ...newState,
-      ...apply(middleware, newState, meta) || {}
-    }
-  }, newState);
+    newState = reduce(middlewares, (newState, middleware) => {
+      return {
+        ...newState,
+        ...apply(middleware, newState, meta) || {}
+      }
+    }, newState);
 
-  forEach(listeners, (listener) => apply(listener, newState, meta));
+    forEach(listeners, (listener) => apply(listener, newState, meta));
 
-  state = cloneDeep(newState);
-};
+    state = cloneDeep(newState);
+  });
+
+
+
 
 export class State extends Component {
   static propTypes = {
