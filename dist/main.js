@@ -41,11 +41,11 @@ var state = {};
 var listeners = {};
 var middlewares = {};
 
-var getState = exports.getState = (0, _stronganator.match)([[_stronganator.T.Function, function (f) {
+var getState = exports.getState = (0, _stronganator.match)([_stronganator.T.Function, function (f) {
   return f(state);
-}], [_stronganator.T.Nil, function () {
+}], [_stronganator.T.Default, function () {
   return state;
-}]]);
+}]);
 
 var seedState = exports.seedState = (0, _stronganator.func)(_stronganator.T.Union(_stronganator.T.Function, _stronganator.T.Hash)).of(function (f) {
   state = (0, _cloneDeep2.default)((0, _helpers.apply)(f, state));
@@ -57,7 +57,7 @@ var silence = exports.silence = (0, _helpers.removeById)(listeners);
 var middleware = exports.middleware = (0, _helpers.setAsId)(middlewares);
 var underwear = exports.underwear = (0, _helpers.removeById)(middleware);
 
-var updateState = exports.updateState = function updateState(f) {
+var updateState = exports.updateState = (0, _stronganator.func)([_stronganator.T.Function, _stronganator.T.Optional(_stronganator.T.Hash)]).of(function (f) {
   var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   var newState = (0, _helpers.apply)(f, state, meta);
@@ -73,7 +73,7 @@ var updateState = exports.updateState = function updateState(f) {
   });
 
   state = (0, _cloneDeep2.default)(newState);
-};
+});
 
 var State = exports.State = function (_Component) {
   _inherits(State, _Component);
