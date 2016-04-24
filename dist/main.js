@@ -9,10 +9,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _cloneDeep = require('lodash/cloneDeep');
-
-var _cloneDeep2 = _interopRequireDefault(_cloneDeep);
-
 var _forEach = require('lodash/forEach');
 
 var _forEach2 = _interopRequireDefault(_forEach);
@@ -48,7 +44,7 @@ var getState = exports.getState = (0, _stronganator.match)([_stronganator.T.Func
 }]);
 
 var seedState = exports.seedState = (0, _stronganator.func)(_stronganator.T.Union(_stronganator.T.Function, _stronganator.T.Hash)).of(function (f) {
-  state = (0, _cloneDeep2.default)((0, _helpers.apply)(f, state));
+  state = (0, _helpers.apply)(f, state);
 });
 
 var listen = exports.listen = (0, _helpers.setAsId)(listeners);
@@ -72,7 +68,7 @@ var updateState = exports.updateState = (0, _stronganator.func)([_stronganator.T
     return (0, _helpers.apply)(listener, newState, meta);
   });
 
-  state = (0, _cloneDeep2.default)(newState);
+  state = newState;
 });
 
 var State = exports.State = function (_Component) {
