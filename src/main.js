@@ -1,4 +1,3 @@
-import cloneDeep from 'lodash/cloneDeep';
 import forEach from 'lodash/forEach';
 import reduce from 'lodash/reduce';
 import React, { Component, PropTypes, cloneElement } from 'react';
@@ -17,7 +16,7 @@ export const getState = match(
 
 export const seedState = func(T.Union(T.Function, T.Hash))
 .of((f) => {
-  state = cloneDeep(apply(f, state));
+  state = apply(f, state);
 });
 
 export const listen = setAsId(listeners);
@@ -44,7 +43,7 @@ export const updateState = func([T.Function, T.Optional(T.Hash)])
 
     forEach(listeners, (listener) => apply(listener, newState, meta));
 
-    state = cloneDeep(newState);
+    state = newState
   });
 
 
