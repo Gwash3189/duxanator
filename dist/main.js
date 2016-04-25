@@ -9,14 +9,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _forEach = require('lodash/forEach');
-
-var _forEach2 = _interopRequireDefault(_forEach);
-
-var _reduce = require('lodash/reduce');
-
-var _reduce2 = _interopRequireDefault(_reduce);
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -60,11 +52,11 @@ var updateState = exports.updateState = (0, _stronganator.func)([_stronganator.T
 
   newState = _extends({}, state, newState);
 
-  newState = (0, _reduce2.default)(middlewares, function (newState, middleware) {
+  newState = (0, _helpers.iterate)(middlewares).reduce(function (newState, middleware) {
     return _extends({}, newState, (0, _helpers.apply)(middleware, newState, meta) || {});
   }, newState);
 
-  (0, _forEach2.default)(listeners, function (listener) {
+  (0, _helpers.iterate)(listeners).forEach(function (listener) {
     return (0, _helpers.apply)(listener, newState, meta);
   });
 
