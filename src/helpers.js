@@ -1,6 +1,18 @@
-import uniqueId from 'lodash/uniqueId';
 import Middleware from './model/middleware';
 import { func, T, match } from 'stronganator';
+
+const uniqueId = (() => {
+  let numb = 0;
+  return func(T.String).of((seed) => {
+    return `${seed}-${numb}`;
+  });
+})();
+
+export const iterate = func([T.Hash], T.Array(T.Any))
+  .of((object) => {
+    return Object.keys(object)
+      .map(key => object[key])
+  })
 
 export const apply = func([T.Union(T.Function, T.Hash), T.Spread(T.Any)])
 .of((f, ...values) =>  {

@@ -1,9 +1,7 @@
-import forEach from 'lodash/forEach';
-import reduce from 'lodash/reduce';
 import React, { Component, PropTypes, cloneElement } from 'react';
 import { T, func, match } from 'stronganator';
 
-import { apply, setAsId, removeById } from './helpers.js';
+import { apply, setAsId, removeById, iterate } from './helpers.js';
 
 let state = {};
 let listeners = {};
@@ -15,9 +13,9 @@ export const getState = match(
 );
 
 export const seedState = func(T.Union(T.Function, T.Hash))
-.of((f) => {
-  state = apply(f, state);
-});
+  .of((f) => {
+    state = apply(f, state);
+  });
 
 export const listen = setAsId(listeners);
 export const silence = removeById(listeners);
@@ -34,14 +32,16 @@ export const updateState = func([T.Function, T.Optional(T.Hash)])
       ...newState
     };
 
-    newState = reduce(middlewares, (newState, middleware) => {
-      return {
-        ...newState,
-        ...apply(middleware, newState, meta) || {}
-      }
-    }, newState);
+    newState = iterate(middlewares)
+      .reduce((newState, middleware) => {
+        return {
+          ...newState,
+          ...apply(middleware, newState, meta) || {}
+        }
+      }, newState);
 
-    forEach(listeners, (listener) => apply(listener, newState, meta));
+    iterate(listeners)
+      .forEach((listener) => apply(listener, newState, meta));
 
     state = newState
   });

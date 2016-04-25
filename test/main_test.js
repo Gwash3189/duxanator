@@ -124,6 +124,41 @@ describe('duxanator', function () {
     });
   });
 
+  describe('Deep merge', () => {
+    const something = 'something';
+    const name = 'name';
+
+    beforeEach(() => {
+      seedState({
+        user: {
+          something
+        },
+        password: {},
+        otherStuff: {
+          someMoreStuff: {}
+        }
+      });
+    })
+    it('deep merges state', () => {
+      updateState((state) => {
+        return {
+          user: {
+            ...state.user,
+            name
+          }
+        }
+      });
+
+      const state = getState();
+
+      expect(state.user.name)
+        .to.eql(name)
+
+      expect(state.user.something)
+        .to.eql(something)
+    })
+  })
+
   describe('State component', function () {
     const state = {user: {username: ''}};
     let component, pluckSpy;
