@@ -13,6 +13,7 @@
   "author": "Adam Beck",
   "license": "MIT",
   "dependencies": {
+    "lodash": "^4.11.1",
     "react": "^15.0.0",
     "stronganator": "^2.0.0"
   },
