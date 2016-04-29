@@ -56,11 +56,11 @@ var updateState = exports.updateState = (0, _stronganator.func)([_stronganator.T
     return _extends({}, newState, (0, _helpers.apply)(middleware, newState, meta) || {});
   }, newState);
 
+  state = newState;
+
   (0, _helpers.iterate)(listeners).forEach(function (listener) {
     return (0, _helpers.apply)(listener, newState, meta);
   });
-
-  state = newState;
 });
 
 var State = exports.State = function (_Component) {
