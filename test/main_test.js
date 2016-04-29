@@ -8,6 +8,32 @@ describe('duxanator', function () {
     seedState({});
   });
 
+  describe('with a nested object state', () => {
+    beforeEach(() => {
+      seedState({
+        comments: {}
+      });
+    });
+
+    describe('#updateState', () => {
+      it('updates the state', () => {
+        updateState((state) => {
+          return {
+            ...state.comments,
+            comments: {1: {}}
+          }
+        });
+
+        expect(getState())
+          .to.eql({
+            comments: {
+              1: {}
+            }
+          })
+      });
+    });
+  });
+
   describe('getState', function () {
     it('is a function', function () {
       expect(getState)
