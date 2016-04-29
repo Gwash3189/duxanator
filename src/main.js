@@ -24,30 +24,27 @@ export const middleware = setAsId(middlewares);
 export const underwear = removeById(middleware);
 
 export const updateState = func([T.Function, T.Optional(T.Hash)])
-  .of((f, meta = {}) => {
-    let newState = apply(f, state, meta);
+.of((f, meta = {}) => {
+  let newState = apply(f, state, meta);
 
-    newState = {
-      ...state,
-      ...newState
-    };
+  newState = {
+    ...state,
+    ...newState
+  };
 
-    newState = iterate(middlewares)
-      .reduce((newState, middleware) => {
-        return {
-          ...newState,
-          ...apply(middleware, newState, meta) || {}
-        }
-      }, newState);
+  newState = iterate(middlewares)
+    .reduce((newState, middleware) => {
+      return {
+        ...newState,
+        ...apply(middleware, newState, meta) || {}
+      }
+    }, newState);
 
-    iterate(listeners)
-      .forEach((listener) => apply(listener, newState, meta));
+  state = newState;
 
-    state = newState
-  });
-
-
-
+  iterate(listeners)
+    .forEach((listener) => apply(listener, newState, meta));
+});
 
 export class State extends Component {
   static propTypes = {

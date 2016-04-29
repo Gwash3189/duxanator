@@ -9,10 +9,10 @@ const uniqueId = (() => {
 })();
 
 export const iterate = func([T.Hash], T.Array(T.Any))
-  .of((object) => {
-    return Object.keys(object)
-      .map(key => object[key])
-  })
+.of((object) => {
+  return Object.keys(object)
+    .map(key => object[key])
+})
 
 export const apply = func([T.Union(T.Function, T.Hash), T.Spread(T.Any)])
 .of((f, ...values) =>  {
@@ -24,10 +24,11 @@ export const apply = func([T.Union(T.Function, T.Hash), T.Spread(T.Any)])
 
 export const setAsId = func([T.Hash, T.Optional(T.Boolean)], T.Function)
 .of((obj, isAsync = false) => func([T.Function])
-.of((f) => {
-  const id = uniqueId('duxanator');
-  obj[id] = Middleware(f, isAsync);
-  return id;
-}));
+  .of((f) => {
+    const id = uniqueId('duxanator');
+    obj[id] = Middleware(f, isAsync);
+    return id;
+  })
+);
 
 export const removeById = (obj) => (id) => delete obj[id];
