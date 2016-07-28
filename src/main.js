@@ -1,36 +1,36 @@
-import React, { Component, PropTypes, cloneElement } from 'react';
-import { T, func, match } from 'stronganator';
+import React, { Component, PropTypes, cloneElement } from 'react'
+import isEqual from 'lodash/isEqual'
 
-import { apply, setAsId, removeById, iterate } from './helpers.js';
+import { apply, setAsId, removeById, iterate } from './helpers.js'
 
-let state = {};
-let listeners = {};
-let middlewares = {};
 
-export const getState = match(
-  [T.Function, (f) => f(state)],
-  [T.Default, () => state]
-);
+let state = {}
+let listeners = {}
+let middlewares = {}
 
-export const seedState = func(T.Union(T.Function, T.Hash))
-  .of((f) => {
-    state = apply(f, state);
-  });
+export const getState = (x) => {
+  return typeof x === 'function'
+    ? x(state)
+    : state
+}
 
-export const listen = setAsId(listeners);
-export const silence = removeById(listeners);
+export const seedState = (f) => {
+  state = apply(f, state)
+}
 
-export const middleware = setAsId(middlewares);
-export const underwear = removeById(middleware);
+export const listen = setAsId(listeners)
+export const silence = removeById(listeners)
 
-export const updateState = func([T.Function, T.Optional(T.Hash)])
-.of((f, meta = {}) => {
-  let newState = apply(f, state, meta);
+export const middleware = setAsId(middlewares)
+export const underwear = removeById(middleware)
+
+export const updateState = (f, meta = {}) => {
+  let newState = apply(f, state, meta)
 
   newState = {
     ...state,
     ...newState
-  };
+  }
 
   newState = iterate(middlewares)
     .reduce((newState, middleware) => {
@@ -38,38 +38,34 @@ export const updateState = func([T.Function, T.Optional(T.Hash)])
         ...newState,
         ...apply(middleware, newState, meta) || {}
       }
-    }, newState);
+    }, newState)
 
-  state = newState;
+  state = newState
 
   iterate(listeners)
-    .forEach((listener) => apply(listener, newState, meta));
-});
+    .forEach((listener) => apply(listener, newState, meta))
+}
 
 export class State extends Component {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    pluck: PropTypes.func.isRequired
-  }
 
-  constructor(props) {
-    super(props);
-    this.state = props.pluck(getState());
+  constructor (props) {
+    super(props)
+    this.state = props.pluck(getState())
     this.listenId = listen((state) => this.setState(props.pluck(state)))
   }
 
-  shouldComponentUpdate(_, nextState) {
-    return this.state !== nextState;
+  shouldComponentUpdate (_, nextState) {
+    return !isEqual(this.state, this.props.pluck(nextState))
   }
 
-  componentWillUnmount() {
-    silence(this.listenId);
+  componentWillUnmount () {
+    silence(this.listenId)
   }
 
-  render() {
+  render () {
     return cloneElement(this.props.children, {
       ...this.state,
       ...this.props
-    });
+    })
   }
 }
