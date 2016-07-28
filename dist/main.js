@@ -13,7 +13,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _stronganator = require('stronganator');
+var _isEqual = require('lodash/isEqual');
+
+var _isEqual2 = _interopRequireDefault(_isEqual);
 
 var _helpers = require('./helpers.js');
 
@@ -29,15 +31,13 @@ var state = {};
 var listeners = {};
 var middlewares = {};
 
-var getState = exports.getState = (0, _stronganator.match)([_stronganator.T.Function, function (f) {
-  return f(state);
-}], [_stronganator.T.Default, function () {
-  return state;
-}]);
+var getState = exports.getState = function getState(x) {
+  return typeof x === 'function' ? x(state) : state;
+};
 
-var seedState = exports.seedState = (0, _stronganator.func)(_stronganator.T.Union(_stronganator.T.Function, _stronganator.T.Hash)).of(function (f) {
+var seedState = exports.seedState = function seedState(f) {
   state = (0, _helpers.apply)(f, state);
-});
+};
 
 var listen = exports.listen = (0, _helpers.setAsId)(listeners);
 var silence = exports.silence = (0, _helpers.removeById)(listeners);
@@ -45,7 +45,7 @@ var silence = exports.silence = (0, _helpers.removeById)(listeners);
 var middleware = exports.middleware = (0, _helpers.setAsId)(middlewares);
 var underwear = exports.underwear = (0, _helpers.removeById)(middleware);
 
-var updateState = exports.updateState = (0, _stronganator.func)([_stronganator.T.Function, _stronganator.T.Optional(_stronganator.T.Hash)]).of(function (f) {
+var updateState = exports.updateState = function updateState(f) {
   var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   var newState = (0, _helpers.apply)(f, state, meta);
@@ -61,7 +61,7 @@ var updateState = exports.updateState = (0, _stronganator.func)([_stronganator.T
   (0, _helpers.iterate)(listeners).forEach(function (listener) {
     return (0, _helpers.apply)(listener, newState, meta);
   });
-});
+};
 
 var State = exports.State = function (_Component) {
   _inherits(State, _Component);
@@ -81,7 +81,7 @@ var State = exports.State = function (_Component) {
   _createClass(State, [{
     key: 'shouldComponentUpdate',
     value: function shouldComponentUpdate(_, nextState) {
-      return this.state !== nextState;
+      return !(0, _isEqual2.default)(this.state, this.props.pluck(nextState));
     }
   }, {
     key: 'componentWillUnmount',
@@ -97,8 +97,3 @@ var State = exports.State = function (_Component) {
 
   return State;
 }(_react.Component);
-
-State.propTypes = {
-  children: _react.PropTypes.node.isRequired,
-  pluck: _react.PropTypes.func.isRequired
-};

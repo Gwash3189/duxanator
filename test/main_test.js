@@ -222,7 +222,7 @@ describe('duxanator', function () {
           .to.be.false
       })
 
-      it.only('time test', function () {
+      it('time test', function () {
         const largeState = {
           things: [
             {
