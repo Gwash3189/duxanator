@@ -5,8 +5,15 @@
         "node": true,
         "mocha": true
     },
+    "parser": "babel-eslint",
+    "ecmaFeatures": {
+      "jsx": true,
+      "experimentalObjectRestSpread": true
+    },
     "plugins": [
         "standard",
-        "promise"
+        "promise",
+        "mocha",
+        "react"
     ]
 }

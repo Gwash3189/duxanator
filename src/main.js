@@ -1,61 +1,79 @@
-import React, { Component, PropTypes, cloneElement } from 'react'
-import isEqual from 'lodash/isEqual'
+import React, { Component, PropTypes } from 'react'
+import cloneDeep from 'lodash/cloneDeep'
+import uniqueId from 'lodash/uniqueId'
+import each from 'lodash/each'
+import identity from 'lodash/identity'
 
-import { apply, setAsId, removeById, iterate } from './helpers.js'
-
-
-let state = {}
+let store = {}
 let listeners = {}
 let middlewares = {}
 
-export const getState = (x) => {
-  return typeof x === 'function'
-    ? x(state)
-    : state
+export const getState = (f = identity) => f(store)
+
+export const seedState = (obj) => {
+  store = obj
 }
 
-export const seedState = (f) => {
-  state = apply(f, state)
+export const listen = (listener) => {
+  const id = uniqueId('state-')
+  listeners[id] = listener
+
+  return id
 }
 
-export const listen = setAsId(listeners)
-export const silence = removeById(listeners)
+export const middleware = (middleware) => {
+  const id = uniqueId('state-')
+  middlewares[id] = middleware
 
-export const middleware = setAsId(middlewares)
-export const underwear = removeById(middleware)
+  return id
+}
+
+export const action = (string, func) => {
+  return (state, meta = {}) => {
+    meta.actions = (meta.actions || []).concat(string)
+    return func(state, meta)
+  }
+}
+
+export const debug = () => {
+  return (state, meta) => {
+    const date = new Date()
+    console.log('META', date , '\n', JSON.stringify(meta, null, 2))
+    console.log('STATE', date, '\n', JSON.stringify(state, null, 2))
+  }
+}
+
+export const clear = () => {
+  store = {}
+  listeners = {}
+  middlewares = {}
+}
+export const silence = (id) => delete listeners[id]
+export const underwear = (id) => delete middleware[id]
 
 export const updateState = (f, meta = {}) => {
-  let newState = apply(f, state, meta)
+  let clone = cloneDeep(store)
 
-  newState = {
-    ...state,
-    ...newState
-  }
+  clone = f(clone, meta)
+  each(middlewares, middleware => {
+    clone = (middleware(clone, meta) || clone)
+  })
+  each(listeners, listener => listener(clone, meta))
 
-  newState = iterate(middlewares)
-    .reduce((newState, middleware) => {
-      return {
-        ...newState,
-        ...apply(middleware, newState, meta) || {}
-      }
-    }, newState)
+  store = clone
 
-  state = newState
-
-  iterate(listeners)
-    .forEach((listener) => apply(listener, newState, meta))
+  return store
 }
 
-export class State extends Component {
+export default class State extends Component {
+  static propTypes = {
+    container: PropTypes.func.isRequired
+  }
 
   constructor (props) {
     super(props)
-    this.state = props.pluck(getState())
-    this.listenId = listen((state) => this.setState(props.pluck(state)))
-  }
-
-  shouldComponentUpdate (_, nextState) {
-    return !isEqual(this.state, this.props.pluck(nextState))
+    this.state = props.state
+    this.listenerId = listen(state => this.setState(state))
   }
 
   componentWillUnmount () {
@@ -63,9 +81,13 @@ export class State extends Component {
   }
 
   render () {
-    return cloneElement(this.props.children, {
-      ...this.state,
-      ...this.props
-    })
+    const newProps = {
+      state: { ...this.state, updateState }
+    }
+    return React.createElement(this.props.container, newProps)
   }
 }
+
+export const Connect = (state) => (container) => (
+  <State state={state} container={container} />
+)
