@@ -38,7 +38,7 @@ export const action = (string, func) => {
 export const debug = () => {
   return (state, meta) => {
     const date = new Date()
-    console.log('META', date , '\n', JSON.stringify(meta, null, 2))
+    console.log('META', date, '\n', JSON.stringify(meta, null, 2))
     console.log('STATE', date, '\n', JSON.stringify(state, null, 2))
   }
 }

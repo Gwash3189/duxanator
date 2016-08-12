@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Connect = exports.updateState = exports.underwear = exports.silence = exports.middleware = exports.listen = exports.seedState = exports.getState = undefined;
+exports.Connect = exports.updateState = exports.underwear = exports.silence = exports.clear = exports.debug = exports.action = exports.middleware = exports.listen = exports.seedState = exports.getState = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -64,6 +64,28 @@ var middleware = exports.middleware = function middleware(_middleware) {
   return id;
 };
 
+var action = exports.action = function action(string, func) {
+  return function (state) {
+    var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    meta.actions = (meta.actions || []).concat(string);
+    return func(state, meta);
+  };
+};
+
+var debug = exports.debug = function debug() {
+  return function (state, meta) {
+    var date = new Date();
+    console.log('META', date, '\n', JSON.stringify(meta, null, 2));
+    console.log('STATE', date, '\n', JSON.stringify(state, null, 2));
+  };
+};
+
+var clear = exports.clear = function clear() {
+  store = {};
+  listeners = {};
+  middlewares = {};
+};
 var silence = exports.silence = function silence(id) {
   return delete listeners[id];
 };
@@ -71,35 +93,33 @@ var underwear = exports.underwear = function underwear(id) {
   return delete middleware[id];
 };
 
-var updateState = exports.updateState = function updateState(f, meta) {
+var updateState = exports.updateState = function updateState(f) {
+  var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
   var clone = (0, _cloneDeep2.default)(store);
 
-  clone = f(clone);
+  clone = f(clone, meta);
   (0, _each2.default)(middlewares, function (middleware) {
-    return middleware(clone, meta);
+    clone = middleware(clone, meta) || clone;
   });
   (0, _each2.default)(listeners, function (listener) {
     return listener(clone, meta);
   });
 
   store = clone;
+
+  return store;
 };
 
 var State = function (_Component) {
   _inherits(State, _Component);
 
-  function State() {
-    var _Object$getPrototypeO;
-
+  function State(props) {
     _classCallCheck(this, State);
 
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(State).call(this, props));
 
-    var _this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(State)).call.apply(_Object$getPrototypeO, [this].concat(args)));
-
-    _this.state = getState();
+    _this.state = props.state;
     _this.listenerId = listen(function (state) {
       return _this.setState(state);
     });
@@ -115,7 +135,7 @@ var State = function (_Component) {
     key: 'render',
     value: function render() {
       var newProps = {
-        state: _extends({}, store, { updateState: updateState })
+        state: _extends({}, this.state, { updateState: updateState })
       };
       return _react2.default.createElement(this.props.container, newProps);
     }

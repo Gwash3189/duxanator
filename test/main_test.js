@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'chai'
 import { spy } from 'sinon'
 import { shallow } from 'enzyme'
 import React from 'react'
@@ -30,10 +30,10 @@ describe('Duxanator', () => {
 
   context('middlewares', () => {
     describe('middleware', () => {
-        it('returns a middleware id', () => {
-          expect(middleware(() => true))
-            .to.be.a('string')
-        })
+      it('returns a middleware id', () => {
+        expect(middleware(() => true))
+          .to.be.a('string')
+      })
     })
 
     describe('underwear', () => {
@@ -86,7 +86,7 @@ describe('Duxanator', () => {
 
     describe('updateState', () => {
       let stateSpy,
-          meta
+        meta
 
       beforeEach(() => {
         stateSpy = spy()
@@ -148,7 +148,7 @@ describe('Duxanator', () => {
 
   context('State', () => {
     let component,
-        state
+      state
 
     function Dummy (props) {
       return (
@@ -185,7 +185,7 @@ describe('Duxanator', () => {
         .to.eql(updateState)
     })
 
-    describe('Connect' ,() => {
+    describe('Connect', () => {
       const state = {
         users: [ { name: 'adam' } ]
       }
