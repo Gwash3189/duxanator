@@ -21,6 +21,10 @@ var _uniqueId = require('lodash/uniqueId');
 
 var _uniqueId2 = _interopRequireDefault(_uniqueId);
 
+var _reduce = require('lodash/reduce');
+
+var _reduce2 = _interopRequireDefault(_reduce);
+
 var _each = require('lodash/each');
 
 var _each2 = _interopRequireDefault(_each);
@@ -42,7 +46,7 @@ var listeners = {};
 var middlewares = {};
 
 var getState = exports.getState = function getState() {
-  var f = arguments.length <= 0 || arguments[0] === undefined ? _identity2.default : arguments[0];
+  var f = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _identity2.default;
   return f(store);
 };
 
@@ -66,7 +70,7 @@ var middleware = exports.middleware = function middleware(_middleware) {
 
 var action = exports.action = function action(string, func) {
   return function (state) {
-    var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     meta.actions = (meta.actions || []).concat(string);
     return func(state, meta);
@@ -86,6 +90,7 @@ var clear = exports.clear = function clear() {
   listeners = {};
   middlewares = {};
 };
+
 var silence = exports.silence = function silence(id) {
   return delete listeners[id];
 };
@@ -94,14 +99,14 @@ var underwear = exports.underwear = function underwear(id) {
 };
 
 var updateState = exports.updateState = function updateState(f) {
-  var meta = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var meta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   var clone = (0, _cloneDeep2.default)(store);
 
-  clone = f(clone, meta);
-  (0, _each2.default)(middlewares, function (middleware) {
-    clone = middleware(clone, meta) || clone;
-  });
+  clone = (0, _reduce2.default)(middlewares, function (clone, middleware) {
+    return middleware(clone, meta) || clone;
+  }, f(clone, meta));
+
   (0, _each2.default)(listeners, function (listener) {
     return listener(clone, meta);
   });
@@ -117,7 +122,7 @@ var State = function (_Component) {
   function State(props) {
     _classCallCheck(this, State);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(State).call(this, props));
+    var _this = _possibleConstructorReturn(this, (State.__proto__ || Object.getPrototypeOf(State)).call(this, props));
 
     _this.state = props.state;
     _this.listenerId = listen(function (state) {
