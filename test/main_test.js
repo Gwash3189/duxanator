@@ -3,7 +3,7 @@ import { spy } from 'sinon'
 import { shallow } from 'enzyme'
 import React from 'react'
 
-import State, { listen, middleware, silence, underwear, updateState, seedState, getState, clear, Connect, action } from '../src/main'
+import State, { listen, middleware, silence, underwear, updateState, seedState, getState, clear, Connect } from '../src/main'
 
 describe('Duxanator', () => {
   afterEach(() => {
@@ -200,24 +200,6 @@ describe('Duxanator', () => {
         expect(component.find(State))
           .to.be.ok
       })
-    })
-  })
-
-  describe('action', () => {
-    it('returns a function', () => {
-      expect(action())
-        .to.be.a('function')
-    })
-
-    it('adds the provided string to meta.actions ', () => {
-      let checkMeta
-
-      updateState(action('name', (_, meta) => {
-        checkMeta = meta
-      }))
-
-      expect(checkMeta.actions)
-        .to.have.eql(['name'])
     })
   })
 })

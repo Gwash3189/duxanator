@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
 import uniqueId from 'lodash/uniqueId'
+import reduce from 'lodash/reduce'
 import each from 'lodash/each'
 import identity from 'lodash/identity'
 
@@ -28,13 +29,6 @@ export const middleware = (middleware) => {
   return id
 }
 
-export const action = (string, func) => {
-  return (state, meta = {}) => {
-    meta.actions = (meta.actions || []).concat(string)
-    return func(state, meta)
-  }
-}
-
 export const debug = () => {
   return (state, meta) => {
     const date = new Date()
@@ -48,16 +42,17 @@ export const clear = () => {
   listeners = {}
   middlewares = {}
 }
+
 export const silence = (id) => delete listeners[id]
 export const underwear = (id) => delete middleware[id]
 
 export const updateState = (f, meta = {}) => {
   let clone = cloneDeep(store)
 
-  clone = f(clone, meta)
-  each(middlewares, middleware => {
-    clone = (middleware(clone, meta) || clone)
-  })
+  clone = reduce(middlewares, (clone, middleware) => {
+    return (middleware(clone, meta) || clone)
+  }, f(clone, meta))
+
   each(listeners, listener => listener(clone, meta))
 
   store = clone
